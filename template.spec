@@ -38,7 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,0755)
-/
+INSTALLATION_DIRECTORY
 
 %changelog
 

@@ -196,6 +196,10 @@ if [[ -r scripts/pre_trans ]]; then
   echo "/%pretrans$/r scripts/pre_trans" >> sedcommands
 fi
 
+if [[ -r packaged_files ]]; then
+  echo "/%files$/r packaged_files" >> sedcommands
+fi
+
 if [[ -r scripts/changelog ]]; then
   echo "/%changelog$/r scripts/changelog" >> sedcommands
 fi
