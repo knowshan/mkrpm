@@ -1,0 +1,6 @@
+{
+  "name": "mkrpm",
+  "tagline": "Make RPM",
+  "body": "## Overview\r\nmkrpm is a helper script to create RPM out of GitHub repository using Docker on Travis CI. It's a wrapper to create a spec file for the project and then generate an RPM using this spec file.\r\n\r\n## Support\r\nFeel free to open an issue and send in PR. \r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
