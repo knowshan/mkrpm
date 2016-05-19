@@ -45,11 +45,17 @@ mkrpm uses files in RPM_CONFIG directory to populate RPM spec file. Most common 
 
 | RPM section     | mkrpm file    |
 | ------------    | -----------   |
+| License:        | RPM_CONFIG/license |
+| Requires:       | RPM_CONFIG/dependencies |
 | %build          | RPM_CONFIG/scripts/build_script |
-| %install        | RPM_CONFIG/scripts/install_script | 
+| %install        | RPM_CONFIG/install_dir OR <br> RPM_CONFIG/scripts/install_script <br> See details below. |
+| %pre            | RPM_CONFIG/scripts/pre_install |
+| %post           | RPM_CONFIG/scripts/post_install |
+| %pretrans       | RPM_CONFIG/scripts/pre_trans |
+| %posttrans      | RPM_CONFIG/scripts/post_trans |
 
 
-Below are few examples for creating RPM_CONFIG files for typical use cases. I will add more comprehensive documentation soon.
+Above details can be overwhelming if you are not familiar with RPM. Below are few examples for creating RPM_CONFIG files for typical use cases.
 
 #### Packaging all repository content as it is in an RPM
 
