@@ -3,7 +3,7 @@ RPM is a package management system used by many Linux distributions. RPM package
 RPM is created using a spec file which contains information about source code, build-install steps and package pre-post installartion steps. This little shell script is a helper script to create RPM spec file and build an RPM using a Docker container.
 
 ## HowTo
-There are two things that need to 
+There are two things needed for creating RPM using this script:
  * Add Travis CI configuration
  * Add RPM_CONFIG files that will be used by this script
 
