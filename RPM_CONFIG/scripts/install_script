@@ -1,0 +1,5 @@
+mkdir -p $RPM_BUILD_ROOT/usr/local/bin
+mkdir -p $RPM_BUILD_ROOT/usr/local/share/mkrpm
+install mkrpm.sh $RPM_BUILD_ROOT/usr/local/bin/mkrpm
+install template.spec  $RPM_BUILD_ROOT/usr/local/share/mkrpm/
+
