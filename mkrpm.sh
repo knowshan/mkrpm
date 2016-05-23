@@ -121,7 +121,7 @@ popd
 RPM_CONFIG_DIR="$WORKSPACE/RPM_CONFIG"
 
 # Create tarball and move it to rpm sources directory
-tar --transform "s,$(echo $WORKSPACE | tr -d '/'),$package_name-$version," -cvzf $package_name-$version.tgz $WORKSPACE
+tar --transform "s,$(echo $WORKSPACE | tr -d '/'),$package_name-$version," -czf $package_name-$version.tgz $WORKSPACE
 cp $package_name-$version.tgz "$RPM_SRC_DIR"
 echo "#mkrpm: Source tgz $RPM_SRC_DIR/$package_name-$version.tgz"
 echo "#mkrpm: Creating RPM spec file."
