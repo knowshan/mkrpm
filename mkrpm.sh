@@ -131,6 +131,7 @@ pushd "$RPM_CONFIG_DIR"
 # Create sedcommands to generate RPM spec file from template
 mkdir -p scripts
 echo "* $commit_metadata" > scripts/changelog
+echo "- Git Repo: $TRAVIS_REPO_SLUG" >> scripts/changelog
 echo "- Commit Hash: $commit_hash" >> scripts/changelog
 echo "- Change message: $commit_msg" >> scripts/changelog
 
