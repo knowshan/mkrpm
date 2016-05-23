@@ -197,6 +197,7 @@ if [[ -r scripts/pre_trans ]]; then
 fi
 
 if [[ -r packaged_files ]]; then
+  echo "/%files/,/%changelog/{//!d}" >> sedcommands
   echo "/%files$/r packaged_files" >> sedcommands
 fi
 
@@ -208,7 +209,7 @@ fi
 if [[ $project == 'knowshan-mkrpm' ]]; then
   sed -f sedcommands "$WORKSPACE/template.spec" > "$RPM_SPECS_DIR"/$project.spec
 else
-  sed -f sedcommands < /knowshan/mkrpm/template.spec > "$RPM_SPECS_DIR"/$project.spec
+  sed -f sedcommands < /usr/local/share/mkrpm/template.spec > "$RPM_SPECS_DIR"/$project.spec
 fi
 
 popd
