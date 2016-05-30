@@ -1,17 +1,19 @@
 ## mkrpm
-mkrpm is a helper script to create RPM using Travis CI and Docker containers. RPM creation requires a corresponding spec file with information like source code copy, package version, release, scripts, changelog etc. mkrpm will help you create RPM spec file as part of CI build process on the fly using Git commit information. It is intended to make RPM build process easy. 
+mkrpm is a helper script to create RPM using Travis CI and Docker containers. RPM creation requires a corresponding spec file with information like source code copy, build-install scripts,  package version, release, pre-post scriptlets, changelog etc. You can provide this information mkrpm's RPM_CONFIG format described below and then mkrpm will handle spec file creation and RPM build process. RPM metadata like version, release and changelog will be populated from Git commit log and Travis CI.
+
+Right now mkrpm supports only RPM packages, but hopefully it will become mkpackage someday. :)
 
 ## HowTo
 There are two things needed for creating RPM using mkrpm:
  * Travis CI configuration to run docker container
  * RPM_CONFIG files that will be used by this script
 
-This documentation will help you get started with RPM build process using mkrpm, but please refer to official Travis CI documentation and Fedora RPM guide if you need more undertsnading about these tools.
+This documentation will help you get started with RPM build process using mkrpm, but please refer to official Travis CI documentation and Fedora RPM guide if you need more understanding about these tools.
 
 ### Travis Configuration File
-Add following travis configuration to call mkrpm. You can merge this with your existing Travis configuration file as well. These lines will be same for most projects. Change CentOS version as needed. All we are doing here is starting a CentOS 6 docker cotainer with Travis CI environment variables and then calling mkrpm. This docker container image is based on official CentOS 6 image with addition on 'Development Tools'.
+Add following Travis configuration to call mkrpm. You can merge this with your existing Travis configuration file as well. These lines will be same for most projects. Change CentOS version as needed. All we are doing here is starting a CentOS based Docker container with Travis CI environment variables and then calling mkrpm. These Docker images are based on official CentOS images with addition of 'Development Tools'.
 
-If your project requires any specific libraries or packages for performing the build (e.g. C++ boost or ruby-devel) then you can install them in Travis install section.
+If your project requires any specific libraries or packages for the build (e.g. C++ boost or ruby-devel) then you can install them in Travis install section.
 
 
 	sudo: required
