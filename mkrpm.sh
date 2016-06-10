@@ -8,7 +8,7 @@ Create RPM package out of git repo
 OPTIONS:
 -h|--help                  Display this usage message
 
-This script will create RPM package from git repo using files in RPM_CONFIG.
+This script will create RPM package from git repo using files in PACKAGE_CONFIG.
 RPM name: $GH_USER_NAME-$REPO_NAME
 Version : YYYY.MM.DD.HH.MM datetime from latest commit
 Release : $TRAVIS_BUILD_NUMBER
@@ -117,8 +117,8 @@ commit_msg=$(git log -1 --pretty='format:%s')
 release="$TRAVIS_BUILD_NUMBER"
 popd
 
-# RPM_CONFIG dir where rpm scriptlets and build-install options are defined
-RPM_CONFIG_DIR="$WORKSPACE/RPM_CONFIG"
+# PACKAGE_CONFIG dir where rpm scriptlets and build-install options are defined
+PACKAGE_CONFIG_DIR="$WORKSPACE/PACKAGE_CONFIG"
 
 # Create tarball and move it to rpm sources directory
 tar --transform "s,$(echo $WORKSPACE | tr -d '/'),$package_name-$version," -czf $package_name-$version.tgz $WORKSPACE
@@ -126,7 +126,7 @@ cp $package_name-$version.tgz "$RPM_SRC_DIR"
 echo "#mkrpm: Source tgz $RPM_SRC_DIR/$package_name-$version.tgz"
 echo "#mkrpm: Creating RPM spec file."
 
-pushd "$RPM_CONFIG_DIR"
+pushd "$PACKAGE_CONFIG_DIR"
 
 # Create sedcommands to generate RPM spec file from template
 mkdir -p scripts
