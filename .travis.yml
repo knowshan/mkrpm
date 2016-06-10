@@ -9,11 +9,11 @@ services:
 language: bash
 
 before_install:
-  - sudo docker pull knowshan/centos-buildsys
+  - sudo docker pull knowshan/centos6-mkrpm
   - gem install package_cloud
 
 install:
-  - sudo docker run -d -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name centos6 knowshan/centos-buildsys
+  - sudo docker run -d -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name centos6 knowshan/centos6-mkrpm
 
 script:
   - sudo docker exec centos6 "$WORKSPACE"/mkrpm.sh
