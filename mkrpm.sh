@@ -119,10 +119,11 @@ fi
 
 read_options "$@"
 build_tools_check
-. $config_file
+ls -l $configfile
+. $configfile
 echo $package_version
 
-cat $config_file
+cat $configfile
 
 # Set package name
 if [[ -z "$package_name" ]]; then
