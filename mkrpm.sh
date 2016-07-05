@@ -41,17 +41,17 @@ function read_options(){
       ;;
       # Package name
       -n|--name)
-        packagename="$2"
+        package_name="$2"
         shift 2
       ;;
       # Package version
       -v|--version)
-        packageversion=$2
+        package_version=$2
         shift 2
       ;;
       # Package release
       -r|--release)
-        packagerelease=$2
+        package_release=$2
         shift 2
       ;;
       --)
@@ -104,6 +104,8 @@ function build_tools_check(){
 # Read Input: 
 # Call read_options to read options using getopt
 GIT_DIR=$WORKSPACE/.git
+pushd $WORKSPACE
+git status
 if [[ "$?" != 0 ]]; then
   echo "#mkrpm: Couldn't get 'git status'. Is this $GIT_DIR a git repository?"
   exit 1
@@ -113,17 +115,17 @@ read_options "$@"
 build_tools_check
 
 # Set package name
-if [[ -z "$packagename" ]]; then
+if [[ -z "$package_name" ]]; then
     package_name=$(git remote -v | awk -F '/' '/(fetch)/ {print $4"-"$5}' | cut -d '.' -f1)
 fi
 
 # Set package version based on date-time
-if [[ -z "$packageversion" ]]; then
+if [[ -z "$package_version" ]]; then
     package_version="$(date -d@$(git log -1 --pretty='format:%at') +%Y.%m.%d.%H.%M)"
 fi
 
 # Set package release number
-if [[ -z "$packagerelease" ]]; then
+if [[ -z "$package_release" ]]; then
     package_release="$TRAVIS_BUILD_NUMBER"
 fi
 
@@ -135,10 +137,10 @@ commit_metadata="$rpmdate $commit_author"
 commit_hash=$(git log -1 --pretty='format:%H')
 commit_msg=$(git log -1 --pretty='format:%s')
 
+popd
 
 
 echo "#mkrpm: Building package: $package_name"
-
 # PACKAGE_CONFIG dir where rpm scriptlets and build-install options are defined
 PACKAGE_CONFIG_DIR="$WORKSPACE/PACKAGE_CONFIG"
 
@@ -172,8 +174,8 @@ fi
 
 echo "s/^Name:/& $package_name/" > sedcommands
 echo "s/^Summary:/& $package_name/" >> sedcommands
-echo "s/^Version:/& $version/" >> sedcommands
-echo "s/^Release:/& $release/" >> sedcommands
+echo "s/^Version:/& $package_version/" >> sedcommands
+echo "s/^Release:/& $package_release/" >> sedcommands
 echo "s/^License:/& $license/" >> sedcommands
 
 if [[ -r dependencies ]]; then
