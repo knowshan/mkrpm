@@ -17,7 +17,7 @@ install:
 
 script:
   - echo "package_version=$(git tag --contains HEAD)" > config_file
-  - sudo docker exec centos6 "${WORKSPACE}/mkrpm.sh" -c "${WORKSPACE}/config_file"
+  - sudo docker exec centos6 "${WORKSPACE}/mkrpm.sh" -v `git tag --contains HEAD`
   - file build_"${TRAVIS_BUILD_NUMBER}"/*.rpm
 
 after_success:
