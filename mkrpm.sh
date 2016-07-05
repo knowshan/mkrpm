@@ -39,6 +39,21 @@ function read_options(){
         echo 'help'
         usage
       ;;
+      # Package name
+      -n|--name)
+        packagename="$2"
+        shift 2
+      ;;
+      # Package version
+      -v|--version)
+        packageversion=$2
+        shift 2
+      ;;
+      # Package release
+      -r|--release)
+        packagerelease=$2
+        shift 2
+      ;;
       --)
         # -- indicates end of options list - break out of the loop
         shift 
@@ -67,6 +82,10 @@ function build_tools_check(){
     echo 'Command "rpmbuild" not found. Please install rpmbuild.'
     ec=1
   fi
+  if [[ ! -r "$WORKSPACE" ]]; then
+    echo "ERROR: $WORKSPACE directory doesn't exist or unreadable." >&2
+    ec=1
+  fi
   if [[ $ec == 1 ]]; then
     exit 1
   fi
@@ -81,30 +100,33 @@ function build_tools_check(){
 
 }
 
+
 # Read Input: 
 # Call read_options to read options using getopt
-project=$(echo $TRAVIS_REPO_SLUG | tr '/' '-')
-package_name="$project"
-user_name=$(echo $TRAVIS_REPO_SLUG | cut -d '/' -f1)
-repo_name=$(echo $TRAVIS_REPO_SLUG | cut -d '/' -f2)
+GIT_DIR=$WORKSPACE/.git
+if [[ "$?" != 0 ]]; then
+  echo "#mkrpm: Couldn't get 'git status'. Is this $GIT_DIR a git repository?"
+  exit 1
+fi
 
 read_options "$@"
 build_tools_check
 
-if [[ ! -r "$WORKSPACE" ]]; then
-    echo "ERROR: $WORKSPACE directory doesn't exist or unreadable." >&2
-    exit 1
-fi 
-
-echo "#mkrpm: Building project: $project"
-
-# Get date-time for RPM versioning
-pushd "$WORKSPACE"
-version="$(date -d@$(git log -1 --pretty='format:%at') +%Y.%m.%d.%H.%M)"
-if [[ -z "$version" ]]; then
-  echo "#mkrpm: Couldn't find latest git commit. Is this project in git repository?"
-  exit 1
+# Set package name
+if [[ -z "$packagename" ]]; then
+    package_name=$(git remote -v | awk -F '/' '/(fetch)/ {print $4"-"$5}' | cut -d '.' -f1)
 fi
+
+# Set package version based on date-time
+if [[ -z "$packageversion" ]]; then
+    package_version="$(date -d@$(git log -1 --pretty='format:%at') +%Y.%m.%d.%H.%M)"
+fi
+
+# Set package release number
+if [[ -z "$packagerelease" ]]; then
+    package_release="$TRAVIS_BUILD_NUMBER"
+fi
+
 
 # rpmdate - used in changelog
 rpmdate="$(date -d@$(git log -1 --pretty='format:%at') +'%a %b %d %Y')"
@@ -113,17 +135,17 @@ commit_metadata="$rpmdate $commit_author"
 commit_hash=$(git log -1 --pretty='format:%H')
 commit_msg=$(git log -1 --pretty='format:%s')
 
-# RPM release number
-release="$TRAVIS_BUILD_NUMBER"
-popd
+
+
+echo "#mkrpm: Building package: $package_name"
 
 # PACKAGE_CONFIG dir where rpm scriptlets and build-install options are defined
 PACKAGE_CONFIG_DIR="$WORKSPACE/PACKAGE_CONFIG"
 
 # Create tarball and move it to rpm sources directory
-tar --transform "s,$(echo $WORKSPACE | tr -d '/'),$package_name-$version," -czf $package_name-$version.tgz $WORKSPACE
-cp $package_name-$version.tgz "$RPM_SRC_DIR"
-echo "#mkrpm: Source tgz $RPM_SRC_DIR/$package_name-$version.tgz"
+tar --transform "s,$(echo $WORKSPACE | tr -d '/'),$package_name-$package_version," -czf $package_name-$package_version.tgz $WORKSPACE
+cp $package_name-$package_version.tgz "$RPM_SRC_DIR"
+echo "#mkrpm: Source tgz $RPM_SRC_DIR/$package_name-$package_version.tgz"
 echo "#mkrpm: Creating RPM spec file."
 
 pushd "$PACKAGE_CONFIG_DIR"
@@ -138,7 +160,7 @@ echo "- Change message: $commit_msg" >> scripts/changelog
 summary=$(curl -s https://api.github.com/repos/$user_name/$repo_name | jq .description)
 
 if [[ -z $summary ]]; then
-  summary="$project"
+  summary="$package_name"
 fi
 
 if [[ -r license ]]; then
@@ -207,28 +229,27 @@ if [[ -r scripts/changelog ]]; then
 fi
 
 # If building itself - use latest template.spec file, Else, use deployed template.spec file
-if [[ $project == 'knowshan-mkrpm' ]]; then
-  sed -f sedcommands "$WORKSPACE/template.spec" > "$RPM_SPECS_DIR"/$project.spec
+if [[ $package_name == 'knowshan-mkrpm' ]]; then
+  sed -f sedcommands "$WORKSPACE/template.spec" > "$RPM_SPECS_DIR"/$package_name.spec
 else
-  sed -f sedcommands < /usr/local/share/mkrpm/template.spec > "$RPM_SPECS_DIR"/$project.spec
+  sed -f sedcommands < /usr/local/share/mkrpm/template.spec > "$RPM_SPECS_DIR"/$package_name.spec
 fi
 
 popd
 
-echo "#mkrpm: Building RPM using spec file "$RPM_SPECS_DIR"/$project.spec"
+echo "#mkrpm: Building RPM using spec file "$RPM_SPECS_DIR"/$package_name.spec"
 
-rpmbuild --clean -ba "$RPM_SPECS_DIR"/$project.spec
+rpmbuild --clean -ba "$RPM_SPECS_DIR"/$package_name.spec
 
 if [[ "$?" == "0" ]]; then
-  echo -e "\033[35mSRPM $RPM_SRPMS_DIR/$package_name-$version-$release.src.rpm\033[0m"
-  echo -e "\033[35mRPM $RPM_RPMS_DIR/x86_64/$package_name-$version-$release.x86_64.rpm\033[0m"
-  mkdir $WORKSPACE/build_$release
-  cp $RPM_SRPMS_DIR/$package_name-$version-$release.src.rpm $WORKSPACE/build_$release/ 
-  cp $RPM_RPMS_DIR/x86_64/$package_name-$version-$release.x86_64.rpm $WORKSPACE/build_$release/
-  rm -v -f $WORKSPACE/$package_name-$version.tgz
+  echo -e "\033[35mSRPM $RPM_SRPMS_DIR/$package_name-$package_version-$package_release.src.rpm\033[0m"
+  echo -e "\033[35mRPM $RPM_RPMS_DIR/x86_64/$package_name-$package_version-$package_release.x86_64.rpm\033[0m"
+  mkdir $WORKSPACE/build_$package_release
+  cp $RPM_SRPMS_DIR/$package_name-$package_version-$package_release.src.rpm $WORKSPACE/build_$package_release/ 
+  cp $RPM_RPMS_DIR/x86_64/$package_name-$package_version-$package_release.x86_64.rpm $WORKSPACE/build_$package_release/
+  rm -v -f $WORKSPACE/$package_name-$package_version.tgz
 else
   echo "#mkrpm: RPM Build failed!!"
-  rm -v -f $WORKSPACE/$package_name-$version.tgz
+  rm -v -f $WORKSPACE/$package_name-$package_version.tgz
   exit 1
 fi
-
