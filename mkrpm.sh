@@ -19,7 +19,7 @@ exit 0
 
 function read_options(){
   # Get output (options list) from getopt  
-  TEMP_OPTS=`getopt -o h --longoptions help -- $@`
+  TEMP_OPTS=`getopt -o hn:v:r: --longoptions help,name:,version:,release: -- $@`
 
   # $? exit code will be non-zero if options passed using $@ aren't passed according getopt command options  
   if [ $? != 0 ]; then
