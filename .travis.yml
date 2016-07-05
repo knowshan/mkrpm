@@ -16,7 +16,7 @@ install:
   - sudo docker run -d -it -e WORKSPACE="${WORKSPACE}" -e TRAVIS_REPO_SLUG="${TRAVIS_REPO_SLUG}" -e TRAVIS_BUILD_NUMBER="${TRAVIS_BUILD_NUMBER}" -v $PWD:"${WORKSPACE}" --name centos6 knowshan/centos6-mkrpm
 
 script:
-  - sudo docker exec centos6 "$WORKSPACE"/mkrpm.sh
+  - sudo docker exec centos6 "$WORKSPACE"/mkrpm.sh -v 1
   - file build_"${TRAVIS_BUILD_NUMBER}"/*.rpm
 
 after_success:
