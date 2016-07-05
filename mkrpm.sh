@@ -120,6 +120,9 @@ fi
 read_options "$@"
 build_tools_check
 . $config_file
+echo $package_version
+
+cat $config_file
 
 # Set package name
 if [[ -z "$package_name" ]]; then
