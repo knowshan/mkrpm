@@ -87,9 +87,12 @@ Following PACKAGE_CONFIG is simplest way to create a self-contained package with
 ### Building source code and packaging build artifacts in an RPM
 1. Create PACKAGE_CONFIG directory in your project.
 2. Add a valid license (examples Apache License, MIT, GNU etc.) to PACKAGE_CONFIG/license file.
-3. Add custom build_script - It could be simply make or make target or RPM macro %make. This will depend on your project specific Makefile.
+3. Add custom build_script to build your source code. It could be simply 'make' or RPM macro %make. This will depend on your project specific Makefile. Below is an example using autoreconf and make.
 
-		%make
+        mkdir -p m4
+        autoreconf -i
+        ./configure
+        make all
 
 4. The build_script could contain things like npm install or grunt task as well. Just make sure that your build container has these tools like npm and grunt installed before calling mkrpm. One advantage of installing npm packages inside RPM is that you get a self contained binary package that could be easily deployed on target systems.
 5. Add custom install_script which will copy files from build directory to RPM_BUILD_ROOT. Example below shows RPM macro:
@@ -105,4 +108,4 @@ Following PACKAGE_CONFIG is simplest way to create a self-contained package with
 ### Including npm modules (self-contained) as part of the RPM
 
 ## Examples
- * httperf
+ * [knowshan/httperf](https://github.com/knowshan/httperf) - httperf RPM
